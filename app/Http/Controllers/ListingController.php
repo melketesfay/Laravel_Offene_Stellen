@@ -14,7 +14,7 @@ class ListingController extends Controller
 
     public function index()
     {
-        dd(request());
+
 
         return view('listings.index', ['topics' => Listing::latest()->filter(request(['tag', 'search']))->paginate(3)]);
     }
@@ -54,5 +54,53 @@ class ListingController extends Controller
         Listing::create($inputData);
 
         return redirect('/')->with('message', 'Listing created successfully!');
+    }
+
+
+
+    // Show Edit form
+    public function edit(Listing $listing, Request $request)
+    {
+        // dd($request, request());
+        // dd($listing->path);
+        // dd(request());
+        return view('listings.edit', ['listItem' => $listing]);
+    }
+
+
+    // Update Listing Data
+    public function update(Request $request, Listing $listing)
+    {
+
+
+        $inputData = $request->validate([
+            'title' => 'required',
+            'company' => ['required'],
+            'location' => 'required',
+            'website' => 'required',
+            'email' => ['required', 'email'],
+            'tags' => 'required',
+            'description' => 'required'
+
+        ]);
+
+        if ($request->hasFile('logo')) {
+            $inputData['logo'] = $request->file('logo')->store('logos', 'public');
+        }
+
+        $listing->update($inputData);
+
+        return redirect('/listings/' . $listing->id);
+    }
+
+
+    // Delete Listing
+
+
+    public function destroy(Listing $listing)
+    {
+
+        $listing->delete();
+        return redirect('/')->with('message', 'Item deleted successfully');
     }
 }
