@@ -4,9 +4,10 @@ namespace Database\Seeders;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-
+use App\Models\User;
 
 use App\Models\Listing;
+use GuzzleHttp\Promise\Create;
 
 class DatabaseSeeder extends Seeder
 {
@@ -15,7 +16,7 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // \App\Models\User::factory(10)->create();
+        // User::factory(10)->create();
 
         // \App\Models\User::factory()->create([
         //     'name' => 'Test User',
@@ -41,6 +42,12 @@ class DatabaseSeeder extends Seeder
         //     'description' => 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Culpa, aliquid sed sunt eum accusantium, ex doloribus id a quisquam consectetur necessitatibus veniam perspiciatis cupiditate dignissimos facilis neque ducimus laborum aliquam!'
         // ]);
 
-        Listing::factory(6)->create();
+        $user = User::factory()->create([
+            'name' => 'John Doe',
+            'email' => 'john@gmail.com'
+        ]);
+        Listing::factory(6)->create([
+            'user_id' => $user->id
+        ]);
     }
 }

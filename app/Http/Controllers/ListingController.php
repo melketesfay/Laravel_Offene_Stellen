@@ -38,6 +38,7 @@ class ListingController extends Controller
 
         $inputData = $request->validate([
             'title' => 'required',
+
             'company' => ['required', Rule::unique('listings', 'company')],
             'location' => 'required',
             'website' => 'required',
@@ -50,6 +51,8 @@ class ListingController extends Controller
         if ($request->hasFile('logo')) {
             $inputData['logo'] = $request->file('logo')->store('logos', 'public');
         }
+
+        $inputData['user_id'] = auth()->id();
 
         Listing::create($inputData);
 
@@ -71,7 +74,11 @@ class ListingController extends Controller
     // Update Listing Data
     public function update(Request $request, Listing $listing)
     {
+        // make sure that logged in user is owner
 
+        if ($listing->user_id != auth()->id()) {
+            abort(403, 'Unauthorized Action');
+        }
 
         $inputData = $request->validate([
             'title' => 'required',
@@ -99,8 +106,20 @@ class ListingController extends Controller
 
     public function destroy(Listing $listing)
     {
+        // make sure that logged in user is owner
+        if ($listing->user_id != auth()->id()) {
+            abort(403, 'Unauthorized Action');
+        }
 
         $listing->delete();
         return redirect('/')->with('message', 'Item deleted successfully');
+    }
+
+
+    // Manage Listing
+
+    public function manage(Listing $listings)
+    {
+        return view('listings.manage', ['listings' =>  auth()->user()->listings()->get()]);
     }
 }
